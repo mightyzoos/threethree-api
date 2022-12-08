@@ -7,7 +7,6 @@ dotenv.config();
 
 const router = Router();
 const sdk = api('@yelp-developers/v1.0');
-sdk.server(process.env.YELP_API_URL);
 sdk.auth(`Bearer ${process.env.YELP_API_KEY}`);
 
 router.get('/autocomplete', (req, res) => {
