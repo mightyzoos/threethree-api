@@ -1,25 +1,13 @@
 import { Router } from 'express';
-import api from 'api';
+import axios from 'axios';
 import url from 'url';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 
 const router = Router();
-const sdk = api('@yelp-developers/v1.0');
-sdk.auth(`Bearer ${process.env.YELP_API_KEY}`);
-
-router.get('/autocomplete', (req, res) => {
-    const { text, latitude, longitude } = url.parse(req.url, true).query;
-
-    return sdk.v3_autocomplete({
-        text: text,
-        latitude: latitude,
-        longitude: longitude
-    })
-        .then((data) => res.send(data))
-        .catch((err) => console.log(err));
-});
+axios.defaults.baseURL = process.env.YELP_ENDPOINT;
+axios.defaults.headers.common['Authorization'] = `Bearer ${process.env.YELP_API_KEY}`;
 
 router.get('/business', (req, res) => {
     const { term, latitude, longitude, price, open_now, open_at, sort_by, limit, offset } = url.parse(req.url, true).query;
@@ -38,8 +26,10 @@ router.get('/business', (req, res) => {
     if (limit) options.limit = limit;
     if (offset) options.offset = offset;
 
-    return sdk.v3_business_search(options)
-        .then((data) => res.send(data))
+    axios.get('/businesses/search', {
+        params: options
+    })
+        .then((json) => res.send(json.data))
         .catch((err) => console.log(err));
 });
 
